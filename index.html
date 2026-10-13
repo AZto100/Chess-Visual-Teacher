@@ -1,0 +1,95 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chess Teacher</title><style>
+:root{font-family:system-ui,Arial,sans-serif;color:#e9edf5;background:#111827}*{box-sizing:border-box}body{margin:0;padding:18px}.wrap{max-width:1250px;margin:auto}h1{margin:0 0 12px;font-size:25px}.controls{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}button,select{background:#27364c;color:white;border:1px solid #56647a;border-radius:7px;padding:9px;cursor:pointer}button:hover{background:#3c516e}.layout{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}.boardgroup{display:flex;gap:9px;align-items:stretch}.board{position:relative;isolation:isolate;display:grid;grid-template-columns:repeat(8,var(--sq));grid-template-rows:repeat(8,var(--sq));border:3px solid #65748b}/* SVG overlay stays aligned with the eight-by-eight grid, including on resize. */
+.hint-lines{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:hidden}
+.hint-lines *{pointer-events:none}
+.hint-line,.hint-line-outline{fill:none;stroke-linecap:round;stroke-dasharray:0 10;vector-effect:non-scaling-stroke}
+.hint-line-outline{stroke:#172d3b;stroke-width:5.5;stroke-opacity:.85}
+.hint-line{stroke-width:3.5}
+.hint-line.best{stroke:#45e37c}
+.hint-line.alternative{stroke:#f0d65b}
+.sq{width:var(--sq);height:var(--sq);position:relative;display:flex;justify-content:center;align-items:center;cursor:pointer;overflow:hidden}.light{background:#eeeed2}.dark{background:#769656}.sq.best{background:#45e37c!important}.sq.alternative{background:#f0d65b!important}.sq.selected{outline:4px solid #44a9ff;outline-offset:-4px}/* Opaque vector pieces replace hollow Unicode/font glyphs. */
+.piece{display:block;width:calc(var(--sq)*.92);height:calc(var(--sq)*.92);flex:none;z-index:1;pointer-events:none;user-select:none;filter:drop-shadow(0 1px 1px #0003)}
+.piece *{pointer-events:none}
+.piece.white{color:#fff;--piece-edge:#202020;--piece-detail:#202020}
+.piece.black{color:#080808;--piece-edge:#d5d9dd;--piece-detail:#e9edf1}
+.piece-body{fill:currentColor;stroke:var(--piece-edge);stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}
+.piece-detail{fill:none;stroke:var(--piece-detail);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.piece-eye{fill:var(--piece-detail);stroke:none}
+.moves{position:absolute;inset:auto 1px 2px;display:flex;flex-direction:column;align-items:center;gap:1px;z-index:3;pointer-events:none}.move{font-size:clamp(8px,calc(var(--sq)*.16),13px);font-weight:900;color:#102018;background:#ffffffd9;border-radius:3px;padding:0 2px;white-space:nowrap}.coord{position:absolute;top:2px;left:3px;color:#23352b;font-size:10px;font-weight:700;opacity:.7}.eval{width:26px;border:2px solid #65748b;position:relative;background:#171717;min-height:100%}.whitefill{position:absolute;bottom:0;width:100%;background:#f4f4f4;height:50%;transition:height .4s}.evalnum{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-90deg);background:#334155;border-radius:4px;padding:2px 5px;font-size:12px;white-space:nowrap;z-index:1}.side{flex:1;min-width:280px;max-width:460px}.panel{background:#1d293b;padding:14px;border-radius:10px;margin-bottom:12px}.panel h2{margin:0 0 10px;font-size:17px}.hintrow{padding:7px 0;border-bottom:1px solid #39475b}.rank{display:inline-block;min-width:27px;font-weight:800}.green{color:#53e68c}.yellow{color:#ffe36a}#commentary{line-height:1.5}.muted{color:#afbed0;font-size:13px}.history{max-height:130px;overflow:auto;line-height:1.7}label{display:inline-flex;gap:6px;align-items:center}.status{margin:8px 0;color:#cbd5e1}@media(max-width:700px){body{padding:8px}.side{max-width:none}.layout{gap:12px}}
+</style></head><body><div class="wrap"><h1>♟ Chess Teacher</h1><div class="controls"><button id="new">New game</button><button id="undo">Undo</button><button id="flip">Flip board</button><label><input type="checkbox" id="hints" checked> Show hints</label><label><input type="checkbox" id="talk" checked> Commentary</label><label>Depth <select id="depth"><option>10</option><option selected>14</option><option>18</option><option>22</option></select></label></div><div id="status" class="status">Loading…</div><div class="layout"><div class="boardgroup"><div class="eval"><div class="whitefill" id="whitefill"></div><span class="evalnum" id="evalnum">0.0</span></div><div class="board" id="board"></div></div><div class="side"><div class="panel"><h2>Best next moves</h2><div id="suggestions">Waiting for engine…</div><p class="muted">Green = #1. Yellow = #2–4. Labels show origin:destination. Dotted lines connect the centres of the origin and destination squares. A destination may show multiple moves.</p></div><div class="panel"><h2>Teacher's commentary</h2><div id="commentary">The centre is important: develop pieces and safeguard your king.</div></div><div class="panel"><h2>Move history</h2><div id="history" class="history">No moves yet.</div></div></div></div><p class="muted">Local only · Requires <code>chess.js</code> and a Stockfish UCI engine in the paths described in README.md. No external network requests at runtime.</p></div><script type="module">
+import { Chess } from "./vendor/chess.js";
+window.Chess = Chess;
+
+(()=>{'use strict';const $=id=>document.getElementById(id);const ChessClass=window.Chess?.Chess||window.Chess;if(!ChessClass){$('status').textContent='Missing vendor/chess.js — see README.md';return;}const game=new ChessClass();let engine=null,selected=null,flipped=false,recommendations=[],evaluation=0,searchId=0,lines={},searching=false;// Original SVG icons, embedded so this single-file UI remains fully local.
+const PIECE_ARTWORK = Object.freeze({
+  "p": "<g class=\"piece-body\"><path d=\"M26 31h12c0 10 3 15 8 19H18c5-4 8-9 8-19Z\"/><path d=\"M25 25h14l3 7H22Z\"/><circle cx=\"32\" cy=\"17\" r=\"8\"/><path d=\"M18 49h28l5 8H13Z\"/></g><path class=\"piece-detail\" d=\"M19 53h26\"/>",
+  "r": "<g class=\"piece-body\"><path d=\"M20 27h24v20l6 5H14l6-5Z\"/><path d=\"M12 9h9v8h7V9h8v8h7V9h9v15l-6 6H18l-6-6Z\"/><path d=\"M15 50h34l5 7H10Z\"/></g><path class=\"piece-detail\" d=\"M19 25h26M22 45h20M17 53h30\"/>",
+  "n": "<g class=\"piece-body\"><path d=\"M17 51c0-7 4-12 11-19l-4-2-7 5-9-6 6-10 10-8 1-7 8 6c14 2 20 15 18 28l-2 13Z\"/><path d=\"M17 50h31l6 7H11Z\"/></g><g class=\"piece-detail\"><path d=\"m22 18 5-3M27 23l-9 5M35 15c9 6 11 17 6 27M32 34c-5 6-7 11-7 16M17 53h31\"/></g><circle cx=\"25.5\" cy=\"21.5\" r=\"1.6\" class=\"piece-eye\"/>",
+  "b": "<g class=\"piece-body\"><path d=\"M28 29h8c0 9 4 16 10 21H18c6-5 10-12 10-21Z\"/><path d=\"M32 9c-4 5-13 10-13 17 0 6 6 10 13 10s13-4 13-10c0-7-9-12-13-17Z\"/><circle cx=\"32\" cy=\"8\" r=\"3\"/><path d=\"M22 37h20l2 5H20Z\"/><path d=\"M18 49h28l6 8H12Z\"/></g><g class=\"piece-detail\"><path d=\"m35 17-7 12M20 53h24\"/></g>",
+  "q": "<g class=\"piece-body\"><path d=\"M13 17 20 28 21 11 28 25 32 7 36 25 43 11 44 28 51 17 44 42H20Z\"/><circle cx=\"12\" cy=\"15\" r=\"3.5\"/><circle cx=\"21\" cy=\"10\" r=\"3.5\"/><circle cx=\"32\" cy=\"7\" r=\"3.5\"/><circle cx=\"43\" cy=\"10\" r=\"3.5\"/><circle cx=\"52\" cy=\"15\" r=\"3.5\"/><path d=\"M21 40h22l2 9H19Z\"/><path d=\"M17 48h30l7 9H10Z\"/></g><g class=\"piece-detail\"><path d=\"M22 36h20M23 44h18M17 53h30\"/></g>",
+  "k": "<g class=\"piece-body\"><path d=\"M29 4h6v6h6v6h-6v8h-6v-8h-6v-6h6Z\"/><path d=\"M21 38c-3-6-10-9-10-17 0-8 11-10 17-1l4 7 4-7c6-9 17-7 17 1 0 8-7 11-10 17Z\"/><path d=\"M22 35h20l3 15H19Z\"/><path d=\"M17 48h30l7 9H10Z\"/></g><g class=\"piece-detail\"><path d=\"M32 26v9M23 40h18M17 53h30\"/></g>"
+});
+/** Create an opaque, scalable piece. No fonts, external images or network calls. */
+function createPiece(piece) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  const side = piece.color === 'w' ? 'White' : 'Black';
+  svg.setAttribute('class', 'piece ' + side.toLowerCase());
+  svg.setAttribute('viewBox', '0 0 64 64');
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', side + ' ' + names[piece.type]);
+  svg.setAttribute('focusable', 'false');
+  svg.dataset.color = piece.color;
+  svg.dataset.piece = piece.type;
+  // Only our static icon markup is inserted, never user-supplied HTML.
+  svg.innerHTML = PIECE_ARTWORK[piece.type];
+  return svg;
+}
+const names={p:'pawn',n:'knight',b:'bishop',r:'rook',q:'queen',k:'king'};function squares(){let w=Math.min(window.innerWidth-65,window.innerWidth>850?window.innerWidth*.57:window.innerWidth-65,650),h=window.innerHeight-190;document.documentElement.style.setProperty('--sq',Math.max(28,Math.floor(Math.min(w/8,Math.max(280,h)/8)))+'px');}function legal(m){try{return game.moves({verbose:true}).some(x=>x.from===m.from&&x.to===m.to&&(!x.promotion||x.promotion===(m.promotion||'q')))}catch{return false}}function draw(){const b=$('board');b.innerHTML='';const files=flipped?'hgfedcba':'abcdefgh',ranks=flipped?'12345678':'87654321',hints=$('hints').checked;for(const r of ranks)for(const f of files){const sq=f+r,p=game.get(sq),cell=document.createElement('div');cell.dataset.square=sq;cell.className='sq '+(((f.charCodeAt(0)-97+Number(r))%2===0)?'light':'dark');if(selected===sq)cell.classList.add('selected');const rec=hints?recommendations.filter(x=>x.to===sq):[];if(rec.length)cell.classList.add(rec[0].rank===1?'best':'alternative');if(p)cell.appendChild(createPiece(p));const c=document.createElement('span');c.className='coord';c.textContent=sq;cell.appendChild(c);if(rec.length){const box=document.createElement('div');box.className='moves';rec.forEach(x=>{const tag=document.createElement('span');tag.className='move';tag.textContent=x.from.toUpperCase()+':'+x.to.toUpperCase();box.appendChild(tag)});cell.appendChild(box)}cell.onclick=()=>clickSquare(sq);b.appendChild(cell)}drawHintLines(b,files,ranks,hints);renderSuggestions();$('history').textContent=game.history().map((x,i)=>(i%2===0?`${Math.floor(i/2)+1}. `:'')+x).join('  ')||'No moves yet.';let v=Math.max(-8,Math.min(8,evaluation));$('whitefill').style.height=(50+v/16*100)+'%';$('evalnum').textContent=(evaluation>=0?'+':'')+evaluation.toFixed(2);}
+/** Render each suggestion as a straight dotted, square-centre-to-square-centre line.
+ *  The overlay cannot intercept clicks. A viewBox keeps endpoints in grid units.
+ *  Draw lower-ranked suggestions first so the green line stays above crossings.
+ */
+function drawHintLines(board, files, ranks, hints) {
+  if (!hints || !recommendations.length) return;
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('class', 'hint-lines');
+  svg.setAttribute('viewBox', '0 0 800 800');
+  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  const centre = square => ({
+    x: (files.indexOf(square[0]) + 0.5) * 100,
+    y: (ranks.indexOf(square[1]) + 0.5) * 100
+  });
+  [...recommendations].sort((a, b) => b.rank - a.rank).forEach(move => {
+    const from = centre(move.from), to = centre(move.to);
+    const group = document.createElementNS(ns, 'g');
+    group.setAttribute('data-from', move.from);
+    group.setAttribute('data-to', move.to);
+    group.setAttribute('data-rank', String(move.rank));
+    // Dark edging keeps the green/yellow dots legible over either square colour.
+    ['hint-line-outline', 'hint-line ' + (move.rank === 1 ? 'best' : 'alternative')].forEach(className => {
+      const line = document.createElementNS(ns, 'line');
+      line.setAttribute('class', className);
+      line.setAttribute('x1', String(from.x));
+      line.setAttribute('y1', String(from.y));
+      line.setAttribute('x2', String(to.x));
+      line.setAttribute('y2', String(to.y));
+      group.appendChild(line);
+    });
+    svg.appendChild(group);
+  });
+  board.appendChild(svg);
+}
+function clickSquare(sq){if(game.isGameOver())return;const p=game.get(sq);if(selected&&selected!==sq){const from=selected;let promotion='q';if(game.get(from)?.type==='p'&&(sq[1]==='8'||sq[1]==='1')){const choice=prompt('Promote to q, r, b, or n','q');if(choice===null)return;promotion=/^[qrbn]$/i.test(choice)?choice.toLowerCase():'q'}const move={from,to:sq,promotion};if(legal(move)){game.move(move);selected=null;recommendations=[];evaluation=0;draw();analyse();return}}selected=p?.color===game.turn()?sq:null;draw()}
+function renderSuggestions(){const el=$('suggestions');if(!$('hints').checked){el.textContent='Hints hidden';return}if(!recommendations.length){el.textContent=searching?'Analysing position…':'No recommendations yet.';return}el.innerHTML='';recommendations.forEach(x=>{const d=document.createElement('div');d.className='hintrow';const k=document.createElement('span');k.className='rank '+(x.rank===1?'green':'yellow');k.textContent='#'+x.rank;d.appendChild(k);d.appendChild(document.createTextNode(' '+x.from.toUpperCase()+' → '+x.to.toUpperCase()+'  ('+x.scoreText+')'));el.appendChild(d)})}
+function explain(x){if(!x)return 'Waiting for analysis.';const m=game.moves({verbose:true}).find(z=>z.from===x.from&&z.to===x.to);if(!m)return 'Position analysed.';const parts=[];if(m.san.includes('#'))parts.push('This delivers checkmate.');else if(m.san.includes('+'))parts.push('This gives check.');if(m.captured)parts.push('This captures a '+names[m.captured]+'.');if(m.flags.includes('k')||m.flags.includes('q'))parts.push('Castling protects the king and connects the rooks.');if(['d4','e4','d5','e5'].includes(m.to))parts.push('This influences or occupies the central squares.');if(['n','b'].includes(m.piece)&&['1','8'].includes(m.from[1]))parts.push('Developing a minor piece helps coordinate your army.');if(m.promotion)parts.push('Promotion creates a powerful new piece.');if(!parts.length)parts.push('Stockfish prefers this move based on the resulting positions, tactical threats and piece activity.');return `${m.san}: ${parts.join(' ')} Engine scores are evaluations, not a guarantee that the move is easy to play.`}
+function setStatus(){if(game.isCheckmate())$('status').textContent='Checkmate — '+(game.turn()==='w'?'Black':'White')+' wins';else if(game.isDraw())$('status').textContent='Draw';else $('status').textContent=(game.turn()==='w'?'White':'Black')+' to move'+(game.isCheck()?' — CHECK':'')+(engine?' · Stockfish ready':' · Engine unavailable')}
+function stop(){if(engine){engine.postMessage('stop');engine.postMessage('isready')}searchId++;lines={};searching=false}
+function analyse(){stop();setStatus();if(game.isGameOver()){recommendations=[];draw();return}if(!engine){draw();return}searching=true;const id=searchId;const fen=game.fen();engine.postMessage('setoption name MultiPV value 4');engine.postMessage('position fen '+fen);engine.postMessage('go depth '+$('depth').value);draw();}
+function parse(line){if(typeof line!=='string')line=String(line.data||'');if(!line.startsWith('info ')||!line.includes(' pv '))return;const pv=line.match(/\bpv ([a-h][1-8][a-h][1-8][qrbn]?)/),mp=line.match(/\bmultipv (\d+)/),dep=line.match(/\bdepth (\d+)/),cp=line.match(/\bscore cp (-?\d+)/),mate=line.match(/\bscore mate (-?\d+)/);if(!pv||!mp||(!cp&&!mate))return;const rank=Number(mp[1]),depth=Number(dep?.[1]||0),uci=pv[1],from=uci.slice(0,2),to=uci.slice(2,4);if(!legal({from,to,promotion:uci[4]||'q'}))return;const turnSign=game.turn()==='w'?1:-1;const score=mate?(Number(mate[1])>0?100:-100):Number(cp[1])/100;lines[rank]={rank,from,to,depth,scoreText:mate?'M'+mate[1]:(score>=0?'+':'')+score.toFixed(2),whiteScore:score*turnSign};recommendations=Object.values(lines).sort((a,b)=>a.rank-b.rank);if(lines[1])evaluation=lines[1].whiteScore;if($('talk').checked&&lines[1])$('commentary').textContent=explain(lines[1]);draw()}
+function startEngine(){try{engine=new Worker('engine/stockfish-19-lite-single.js');engine.onmessage=e=>{const line=typeof e.data==='string'?e.data:String(e.data);if(line.includes('uciok'))analyse();else if(line.startsWith('info '))parse(line);else if(line.startsWith('bestmove ')){searching=false;draw()}};engine.onerror=()=>{$('status').textContent='Engine failed to load. Check engine files and README.md.';engine=null};engine.postMessage('uci');}catch(e){engine=null;$('status').textContent='Cannot start engine: '+e.message}}
+$('new').onclick=()=>{stop();game.reset();selected=null;recommendations=[];evaluation=0;analyse()};$('undo').onclick=()=>{if(game.undo()){selected=null;recommendations=[];analyse()}};$('flip').onclick=()=>{flipped=!flipped;draw()};$('hints').onchange=draw;$('talk').onchange=()=>{if($('talk').checked&&recommendations[0])$('commentary').textContent=explain(recommendations[0]);else $('commentary').textContent='Commentary disabled.'};$('depth').onchange=analyse;window.addEventListener('resize',()=>{squares();draw()});squares();draw();setStatus();startEngine();})();
+</script></body></html>
