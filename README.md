@@ -1,3 +1,5 @@
+Run from Github : https://azto100.github.io/Chess-Visual-Teacher/
+
 # Chess Teacher - corrected dependency setup
 
 This package contains a corrected index.html and download helpers. It does NOT
