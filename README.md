@@ -1,9 +1,7 @@
 Run from Github : https://azto100.github.io/Chess-Visual-Teacher/
 
-# Chess Teacher - corrected dependency setup
+# Chess Teacher
 
-This package contains a corrected index.html and download helpers. It does NOT
-contain chess.js or Stockfish binaries. Run one download helper while online.
 All downloaded files then remain local; the app uses no external runtime service.
 
 ## Windows 10
@@ -21,9 +19,6 @@ All downloaded files then remain local; the app uses no external runtime service
 6. Open http://127.0.0.1:8765 in your browser. Keep the terminal open.
    Ctrl+C stops the server. Do not open index.html directly with a file:// URL.
 
-Alternatively run the downloader directly:
-
-   powershell -NoProfile -ExecutionPolicy Bypass -File .\download-dependencies.ps1
 
 ## WSL / Ubuntu
 
@@ -52,30 +47,6 @@ Windows .exe is not a substitute for the browser JavaScript/WASM files.
 The lite single-threaded build does not require cross-origin isolation headers.
 No Node.js, npm, compilation or online chess account is needed for this setup.
 
-## Changes to the starter
-
-The outdated chess.umd.js global-script dependency is replaced by:
-
-<script type="module">
-import { Chess } from "./vendor/chess.js";
-window.Chess = Chess;
-
-The existing application code follows this import in the same script block.
-The worker path is now engine/stockfish-19-lite-single.js.
-No other game/analysis logic has been changed.
-
-## Verification and limitations
-
-The module script and Bash script have been syntax-checked. Upstream release
-metadata and documentation were checked on 13 October 2026. The helper verifies
-Stockfish downloads against SHA-256 values published with release v19.0.1.
-The environment used to prepare this package could not fetch these dependency
-files, so neither their downloading nor end-to-end browser execution was tested.
-
-The original starter limitations remain: rapid consecutive moves can overlap
-analysis; the commentary is heuristic; Unicode pieces are used rather than
-image files. This update addresses dependency installation and loading only.
-
 ## Sources and licensing
 
 chess.js 1.4.0: BSD-2-Clause.
@@ -86,6 +57,3 @@ Stockfish.js 19.0.1 engine: GPL v3.
 https://github.com/nmrugg/stockfish.js/releases/tag/v19.0.1
 https://github.com/nmrugg/stockfish.js/tree/v19.0.1
 https://raw.githubusercontent.com/nmrugg/stockfish.js/v19.0.1/README.md
-
-The download scripts also save each upstream license in licenses/.
-Upstream third-party code and binaries are not included in this ZIP.
