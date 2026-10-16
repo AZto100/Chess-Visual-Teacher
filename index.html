@@ -59,7 +59,11 @@ button,select{font:inherit;background:#27364c;color:white;border:1px solid #5664
 <p class="muted legend" id="play-legend" hidden><span class="grey-swatch light"></span> / <span class="grey-swatch dark"></span> Grey = latest move's FROM and TO squares. Light squares become light grey; dark squares become dark grey. These remain visible when hints are off.</p>
 </div>
 <div class="side">
-<div class="panel" id="play-settings" hidden>
+
+<div class="panel"><h2 id="suggestions-title">Best next moves</h2><div id="suggestions">Waiting for engine...</div><p class="muted" id="analysis-note"></p><p class="muted legend">Green = #1. Yellow = #2-4. Labels show rank and origin:destination. Dotted lines connect square centres. Hints apply only to the side whose turn it is.</p></div>
+<div class="panel"><h2>Teacher's commentary</h2><div id="commentary">Waiting for analysis.</div></div>
+<div class="panel"><h2>Move history</h2><div id="history" class="history">No moves yet.</div></div>
+  <div class="panel" id="play-settings" hidden>
 <h2>Computer move selection</h2>
 <div class="settings">
 <label id="weighting-control">Weighting <select id="weighting"><option value="safe" selected>Score-gap (recommended)</option><option value="original">Your formula (guarded)</option></select></label>
@@ -78,9 +82,6 @@ button,select{font:inherit;background:#27364c;color:white;border:1px solid #5664
 <p>The computer waits for its search to end (depth, node budget or time limit) before choosing. A brief pause makes the reply visible. Changing mode, flipping, undoing or starting a new game cancels a pending choice.</p>
 </details>
 </div>
-<div class="panel"><h2 id="suggestions-title">Best next moves</h2><div id="suggestions">Waiting for engine...</div><p class="muted" id="analysis-note"></p><p class="muted legend">Green = #1. Yellow = #2-4. Labels show rank and origin:destination. Dotted lines connect square centres. Hints apply only to the side whose turn it is.</p></div>
-<div class="panel"><h2>Teacher's commentary</h2><div id="commentary">Waiting for analysis.</div></div>
-<div class="panel"><h2>Move history</h2><div id="history" class="history">No moves yet.</div></div>
 </div>
 </div>
 <p class="muted">All analysis runs in this browser. Keep <code>vendor/chess.js</code> and <code>engine/stockfish-19-lite-single.js</code> with its matching WASM file. No external network requests at runtime.</p>
