@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chess Teacher - Rating &amp; Blunder Controls</title>
+<title>Chess Teacher - Auto-fit &amp; Saved Games</title>
 <style>
 :root{font-family:system-ui,Arial,sans-serif;color:#e9edf5;background:#111827;--sq:64px;--last-light:#d4d4d4;--last-dark:#737373}
 *{box-sizing:border-box}body{margin:0;padding:18px}.wrap{max-width:1250px;margin:auto}h1{margin:0;font-size:25px}.subtitle{margin:5px 0 12px}.controls{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0;align-items:center}
@@ -18,34 +18,90 @@ button,select{font:inherit;background:#27364c;color:white;border:1px solid #5664
 .eval{width:26px;border:2px solid #65748b;position:relative;background:#171717}.whitefill{position:absolute;bottom:0;width:100%;background:#f4f4f4;height:50%;transition:height .4s}.evalnum{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-90deg);background:#334155;border-radius:4px;padding:2px 5px;font-size:12px;white-space:nowrap;z-index:1}.eval-label{position:absolute;left:50%;transform:translateX(-50%);font-size:9px;font-weight:800;z-index:1;padding:1px 2px;border-radius:2px}.eval-label.black-label{top:3px;color:white;background:#171717}.eval-label.white-label{bottom:3px;color:#171717;background:white}
 .side{flex:1;min-width:280px;max-width:460px}.panel{background:#1d293b;padding:14px;border-radius:10px;margin-bottom:12px}.panel h2{margin:0 0 10px;font-size:17px}.hintrow{display:flex;align-items:center;gap:7px;padding:8px 0;border-bottom:1px solid #39475b;font-size:14px}.rank{display:inline-block;min-width:24px;font-weight:800}.green{color:#53e68c}.yellow{color:#ffe36a}.chance{margin-left:auto;font-size:12px;white-space:nowrap;background:#314258;border-radius:4px;padding:3px 5px;font-variant-numeric:tabular-nums}.score{color:#afbed0;font-size:12px}.muted{color:#afbed0;font-size:13px}.status{margin:8px 0;color:#cbd5e1;min-height:24px}.history{max-height:140px;overflow:auto;line-height:1.7;white-space:pre-wrap}.seat{padding:5px 0 5px 35px;font-size:13px;font-weight:700;color:#afbed0}.lastmove-text{margin:9px 0;font-size:13px;color:#cbd5e1}.legend{line-height:1.5;max-width:600px}.grey-swatch{display:inline-block;width:12px;height:12px;border:1px solid #a0a0a0;vertical-align:-1px;border-radius:2px}.grey-swatch.light{background:var(--last-light)}.grey-swatch.dark{background:var(--last-dark)}#commentary{line-height:1.5}.settings{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}.settings label{font-size:13px}details{font-size:13px;line-height:1.5}summary{cursor:pointer;color:#c9d6e8}details p{margin:9px 0}code{font-size:.94em}.strength-note{margin:0 0 10px;max-width:1000px;line-height:1.5}.control-disabled{opacity:.55}.selection-summary{padding:9px 11px;background:#26394d;border-left:3px solid #53e68c;border-radius:4px;font-size:13px;line-height:1.5;margin:8px 0}.preset-table{width:100%;border-collapse:collapse;margin:10px 0;font-variant-numeric:tabular-nums}.preset-table th,.preset-table td{padding:5px 6px;text-align:right;border-bottom:1px solid #39475b}.preset-table th:first-child,.preset-table td:first-child{text-align:left}.strength-details{margin-bottom:10px}.hintrow{flex-wrap:wrap}.choice-note{font-size:12px;line-height:1.5;color:#afbed0;margin:6px 0 0}#engine-retry{padding:5px 9px;margin-left:8px}[hidden]{display:none!important}
 @media(max-width:700px){body{padding:8px}.side{max-width:none;min-width:0;width:100%}.layout{gap:12px}.controls{gap:8px;font-size:13px}h1{font-size:23px}.panel{padding:12px}}
+
+/* Auto-fit: the chessboard has first claim on the viewport. No fixed board cap. */
+html{min-height:100%;background:#111827}
+body{padding:clamp(8px,1.1vw,16px)}
+.wrap{max-width:none;width:100%;margin:0 auto}
+.app-header{margin-bottom:8px}
+.titlebar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{font-size:22px;line-height:1.2}
+.header-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.header-actions button{padding:5px 9px;font-size:13px}
+.controls{margin:9px 0 6px;gap:8px 12px}
+.controls label{font-size:14px}
+.controls button,.controls select{padding:6px 8px}
+.status{margin:5px 0 0;min-height:20px;font-size:13px;line-height:20px}
+.save-status{font-size:12px;color:#8de5b0;white-space:nowrap}
+.save-status.warning{color:#ffe36a}
+.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start;min-width:0}
+.layout.with-sidebar{grid-template-columns:var(--boardcolumn-width) minmax(0,1fr)}
+.boardcolumn{display:flex;flex-direction:column;align-items:stretch;flex:none;min-width:0;max-width:100%;width:max-content;justify-self:center}
+.boardgroup{gap:8px;width:max-content;max-width:100%}
+.board{flex:none;width:calc(var(--sq)*8 + 6px);height:calc(var(--sq)*8 + 6px)}
+.sq{min-width:0;min-height:0}
+.eval{flex:none;width:26px}
+.seat{padding:4px 0 4px 34px;font-size:12px;line-height:18px;white-space:nowrap}
+.lastmove-text{margin:4px 0 0;padding-left:34px;font-size:12px;line-height:20px;height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side{width:100%;min-width:0;max-width:none}
+.with-sidebar .side{max-height:var(--play-height);overflow-y:auto;overflow-x:hidden;scrollbar-gutter:stable;padding-right:3px;overscroll-behavior:contain}
+.panel{padding:12px;margin-bottom:10px}
+.panel:last-child{margin-bottom:0}
+.panel h2{font-size:16px;margin-bottom:8px}
+.panel p:last-child{margin-bottom:0}
+.panel details{overflow-wrap:anywhere}
+.hint-controls{display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap;font-size:13px}
+.strength-note{margin:9px 0;font-size:12px}
+.strength-details{margin:0}
+.legend{max-width:none}
+.storage-help{font-size:12px;color:#afbed0;line-height:1.5}
+.footer{font-size:12px;line-height:1.5;margin:10px 0 0}
+.focus-board .side,.focus-board .footer{display:none}
+.focus-board .layout{grid-template-columns:minmax(0,1fr)}
+#focus[aria-pressed=true]{background:#385a72;border-color:#8fbcdb}
+#fullscreen[aria-pressed=true]{background:#385a72}
+#board-size{font-variant-numeric:tabular-nums}
+.coord{font-size:clamp(8px,calc(var(--sq)*.15),13px)}
+.move{font-size:clamp(7px,calc(var(--sq)*.15),16px)}
+@media(max-width:700px){
+  .layout{gap:12px}.controls{gap:7px 10px}.controls label{font-size:12px}
+  .controls button,.controls select{font-size:12px;padding:5px 6px}
+  h1{font-size:19px}.header-actions{gap:5px}.header-actions button{font-size:12px;padding:4px 6px}
+  .save-status{font-size:11px}.panel{padding:11px}
+  .seat{font-size:11px}.status{font-size:12px}
+}
+@media(max-height:500px){
+  body{padding:6px 8px}.app-header{margin-bottom:4px}h1{font-size:17px}
+  .controls{margin:5px 0 3px;gap:5px 8px}.controls label,.controls button,.controls select{font-size:12px}
+  .controls button,.controls select{padding:4px 6px}.status{margin:0;font-size:12px;line-height:17px;min-height:17px}
+  .seat{padding-top:2px;padding-bottom:2px;font-size:11px;line-height:15px}
+  .lastmove-text{margin-top:2px;line-height:16px;height:16px;font-size:11px}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>&#9823; Chess Teacher</h1>
-<p class="muted subtitle">Explore both sides, or play the computer with guided move choices.</p>
+<header class="app-header" id="app-header">
+<div class="titlebar"><h1>&#9823; Chess Teacher</h1><div class="header-actions">
+<span class="save-status" id="save-status" role="status" aria-live="polite">Autosave starting...</span>
+<button id="focus" aria-pressed="false" title="Hide the teaching panels. Keep the board and main play controls.">Focus board</button>
+<button id="fullscreen" aria-pressed="false" title="Use the full screen. Press Esc to leave." hidden>Full screen</button>
+</div></div>
 <div class="controls">
 <label>Mode <select id="mode"><option value="practice" selected>Practice</option><option value="play">Play computer</option></select></label>
 <button id="new">New game</button><button id="undo">Undo</button><button id="flip" title="Rotate the board. In Play computer, you always play the bottom colour.">Flip board</button>
-<label><input type="checkbox" id="hintsWhite" checked> Show white hints</label>
-<label><input type="checkbox" id="hintsBlack" checked> Show black hints</label>
-<label><input type="checkbox" id="talk" checked> Commentary</label>
+
+
+
 <label title="Training difficulty presets, not calibrated FIDE ratings.">Approx. rating <select id="rating" aria-describedby="rating-caveat">
 <option value="600">600</option><option value="700">700</option><option value="800">800</option><option value="1000">1000</option><option value="1200">1200</option><option value="1400">1400</option><option value="1600" selected>1600</option><option value="1800">1800</option><option value="2000">2000</option><option value="2200">2200</option><option value="2400">2400</option>
 </select></label>
 <label id="blunder-control" title="Play computer only. Checked: your weighted top-four choice. Unchecked: Stockfish's final best move at this preset's search limits."><input type="checkbox" id="allowBlunder" checked disabled> Allow Blunder</label>
 </div>
-<p class="muted strength-note" id="rating-caveat"><strong>Training estimates, not measured FIDE ratings.</strong> Higher presets allow more search. Lower presets can still play much stronger than their label, especially with Allow Blunder off.</p>
-<details class="strength-details"><summary>Rating presets and search variety</summary>
-<p>These are hand-tuned search budgets, <strong>not a validated depth-to-FIDE conversion</strong>. The label 600 does not mean this engine has achieved a 600 FIDE rating. Actual strength depends on the position, engine build, thinking limit and move-selection policy. Proper rating calibration would need games against opponents with known ratings.</p>
-<p id="strength-summary"></p>
-<table class="preset-table" style="max-width:480px"><thead><tr><th>Training label</th><th>Depth ceiling</th><th>Node budget</th></tr></thead><tbody id="preset-rows"></tbody></table>
-<p>Stockfish's documented <code>UCI_Elo</code> starts at 1320 and is anchored to an engine rating list, not FIDE. Its built-in strength reduction deliberately chooses suboptimal moves. This board instead keeps that reduction <strong>off</strong>, so your Allow Blunder checkbox has sole control over intentional random move selection.</p>
-<p><strong>Same position, same best move?</strong> Often, yes. Fixed single-thread search is not shuffled automatically here. Allow Blunder adds variety by sampling the best four analysed moves, without changing the preset. With it off, the board always uses the engine's final best move; even equal-score ties are not deliberately randomised. Different human opening moves also lead to different games.</p>
-<p>The hash/search cache is cleared before each search so changing from a stronger to a weaker preset does not reuse deeper analysis. The optional time cap may stop a search before its full budget is reached. The completed depth is shown below the hints. These limits apply in Practice too, so low-level hints are not full-strength analysis.</p>
-</details>
+
 <div class="status"><span id="status" role="status" aria-live="polite">Loading chess rules...</span><button id="engine-retry" hidden>Retry engine</button></div>
-<div class="layout">
+</header>
+<div class="layout" id="layout">
 <div class="boardcolumn">
 <div class="seat" id="top-seat">Black - top</div>
 <div class="boardgroup">
@@ -56,14 +112,18 @@ button,select{font:inherit;background:#27364c;color:white;border:1px solid #5664
 </div>
 <div class="seat" id="bottom-seat">White - bottom</div>
 <div class="lastmove-text" id="lastmove">No moves yet.</div>
-<p class="muted legend" id="play-legend" hidden><span class="grey-swatch light"></span> / <span class="grey-swatch dark"></span> Grey = latest move's FROM and TO squares. Light squares become light grey; dark squares become dark grey. These remain visible when hints are off.</p>
-</div>
-<div class="side">
 
-<div class="panel"><h2 id="suggestions-title">Best next moves</h2><div id="suggestions">Waiting for engine...</div><p class="muted" id="analysis-note"></p><p class="muted legend">Green = #1. Yellow = #2-4. Labels show rank and origin:destination. Dotted lines connect square centres. Hints apply only to the side whose turn it is.</p></div>
-<div class="panel"><h2>Teacher's commentary</h2><div id="commentary">Waiting for analysis.</div></div>
-<div class="panel"><h2>Move history</h2><div id="history" class="history">No moves yet.</div></div>
-  <div class="panel" id="play-settings" hidden>
+</div>
+<aside class="side" aria-label="Teaching panels">
+<div class="panel" id="display-settings"><h2>Hints &amp; display</h2>
+<div class="hint-controls"><label><input type="checkbox" id="hintsWhite" checked> Show white hints</label><label><input type="checkbox" id="hintsBlack" checked> Show black hints</label><label><input type="checkbox" id="talk" checked> Commentary</label></div>
+<p class="muted" id="board-size"></p><p class="muted legend" id="play-legend" hidden><span class="grey-swatch light"></span> / <span class="grey-swatch dark"></span> Grey = latest move's FROM and TO squares. Light squares become light grey; dark squares become dark grey. These remain visible when hints are off.</p>
+<details><summary>Saved game on this device</summary>
+<p class="storage-help">The board position, complete move history, strength, mode, Allow Blunder, hint switches and board orientation save automatically in this browser. Reopening this same site restores them. If it is the computer's turn, it resumes after a fresh analysis.</p>
+<p class="storage-help">New game replaces the saved position but keeps your settings. This saves one game per browser profile and site folder, not a cloud backup. Private browsing or clearing site data may erase it. Localhost and GitHub Pages have separate saves.</p>
+</details></div>
+
+<div class="panel" id="play-settings" hidden>
 <h2>Computer move selection</h2>
 <div class="settings">
 <label id="weighting-control">Weighting <select id="weighting"><option value="safe" selected>Score-gap (recommended)</option><option value="original">Your formula (guarded)</option></select></label>
@@ -82,9 +142,21 @@ button,select{font:inherit;background:#27364c;color:white;border:1px solid #5664
 <p>The computer waits for its search to end (depth, node budget or time limit) before choosing. A brief pause makes the reply visible. Changing mode, flipping, undoing or starting a new game cancels a pending choice.</p>
 </details>
 </div>
+<div class="panel"><h2 id="suggestions-title">Best next moves</h2><div id="suggestions">Waiting for engine...</div><p class="muted" id="analysis-note"></p><p class="muted legend">Green = #1. Yellow = #2-4. Labels show rank and origin:destination. Dotted lines connect square centres. Hints apply only to the side whose turn it is.</p></div>
+<div class="panel"><h2>Teacher's commentary</h2><div id="commentary">Waiting for analysis.</div></div>
+<div class="panel"><h2>Move history</h2><div id="history" class="history">No moves yet.</div></div>
+<div class="panel"><h2>About the training levels</h2><p class="muted strength-note" id="rating-caveat"><strong>Training estimates, not measured FIDE ratings.</strong> Higher presets allow more search. Lower presets can still play much stronger than their label, especially with Allow Blunder off.</p>
+<details class="strength-details"><summary>Rating presets and search variety</summary>
+<p>These are hand-tuned search budgets, <strong>not a validated depth-to-FIDE conversion</strong>. The label 600 does not mean this engine has achieved a 600 FIDE rating. Actual strength depends on the position, engine build, thinking limit and move-selection policy. Proper rating calibration would need games against opponents with known ratings.</p>
+<p id="strength-summary"></p>
+<table class="preset-table" style="max-width:480px"><thead><tr><th>Training label</th><th>Depth ceiling</th><th>Node budget</th></tr></thead><tbody id="preset-rows"></tbody></table>
+<p>Stockfish's documented <code>UCI_Elo</code> starts at 1320 and is anchored to an engine rating list, not FIDE. Its built-in strength reduction deliberately chooses suboptimal moves. This board instead keeps that reduction <strong>off</strong>, so your Allow Blunder checkbox has sole control over intentional random move selection.</p>
+<p><strong>Same position, same best move?</strong> Often, yes. Fixed single-thread search is not shuffled automatically here. Allow Blunder adds variety by sampling the best four analysed moves, without changing the preset. With it off, the board always uses the engine's final best move; even equal-score ties are not deliberately randomised. Different human opening moves also lead to different games.</p>
+<p>The hash/search cache is cleared before each search so changing from a stronger to a weaker preset does not reuse deeper analysis. The optional time cap may stop a search before its full budget is reached. The completed depth is shown below the hints. These limits apply in Practice too, so low-level hints are not full-strength analysis.</p>
+</details></div>
+</aside>
 </div>
-</div>
-<p class="muted">All analysis runs in this browser. Keep <code>vendor/chess.js</code> and <code>engine/stockfish-19-lite-single.js</code> with its matching WASM file. No external network requests at runtime.</p>
+<p class="muted footer">All analysis and game saving stay in this browser. Keep <code>vendor/chess.js</code> and <code>engine/stockfish-19-lite-single.js</code> with its matching WASM file. No external network requests at runtime.</p>
 <noscript><p>JavaScript must be enabled to use this chessboard.</p></noscript>
 </div>
 <script type="module">
@@ -100,7 +172,7 @@ window.Chess = Chess;
 (() => {
 'use strict';
 const $ = id => document.getElementById(id);
-const game = new Chess();
+let game = new Chess();
 const names = {p:'pawn',n:'knight',b:'bishop',r:'rook',q:'queen',k:'king'};
 const BONUS = [0.20, 0.10, 0.05, 0];
 const AUTO_DELAY_MS = 650;
@@ -129,7 +201,13 @@ const allowBlunders = () => $('allowBlunder').checked;
 const numberText = number => Number(number).toLocaleString('en-US');
 let selected = null, flipped = false, recommendations = [], lastMove = null;
 let revision = 0, gameSerial = 1, busy = false, result = null, lastChoice = null;
-let autoTimer = null, drawFrame = null, engineError = '', engine = null;
+let autoTimer = null, drawFrame = null, sizeFrame = null, engineError = '', engine = null;
+let focusBoard = false, storageAvailable = true, storageWarning = '', lastSavedContent = null;
+const SAVE_VERSION = 1;
+// Directory-scoped key: /repo/ and /repo/index.html share a save; other Pages apps do not.
+const SAVE_KEY = 'chess-teacher:session:v1:' + new URL('.', location.href).pathname;
+const SELECT_SETTINGS = ['mode','rating','weighting','think'];
+const CHECK_SETTINGS = ['allowBlunder','hintsWhite','hintsBlack','talk'];
 let legalMoves = [], moveHistory = [];
 let evaluation = {value:0, text:'0.00', description:'Equal position', known:false};
 const colourName = colour => colour === 'w' ? 'White' : 'Black';
@@ -145,6 +223,91 @@ function refreshPositionCache() {
   moveHistory = game.history({verbose:true});
   lastMove = moveHistory.length ? moveHistory[moveHistory.length - 1] : null;
 }
+
+/** Save complete legal move history, not just the pieces on the board.
+ * Replaying it retains side to move, castling/en-passant rights, draw counters,
+ * repetition history and Undo. Never persist a pending engine move or timer.
+ */
+function savedSettings() {
+  const settings = {flipped, focusBoard};
+  for (const id of SELECT_SETTINGS) settings[id] = $(id).value;
+  for (const id of CHECK_SETTINGS) settings[id] = $(id).checked;
+  return settings;
+}
+function showSaveStatus(text, warning = false) {
+  const node = $('save-status');
+  node.textContent = text; node.classList.toggle('warning', warning);
+  node.title = warning ? storageWarning : 'Automatically saved in this browser for this site folder. Reopen the same address to resume.';
+}
+function saveSession() {
+  if (!storageAvailable) return false;
+  try {
+    const content = {settings:savedSettings(), moves:moveHistory.map(uciOf), fen:game.fen()};
+    const signature = JSON.stringify(content);
+    // A stale background tab must not overwrite another tab's newer save just
+    // because it closes. Only changed game/settings are written again.
+    if (signature === lastSavedContent) return true;
+    const state = {version:SAVE_VERSION, savedAt:new Date().toISOString(), ...content};
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    lastSavedContent = signature;
+    storageWarning = ''; showSaveStatus('Saved on this device');
+    return true;
+  } catch (error) {
+    storageAvailable = false;
+    storageWarning = 'Local saving is blocked or full. This game still works, but cannot be restored after closing.';
+    showSaveStatus('Saving unavailable', true);
+    return false;
+  }
+}
+function restoreSession() {
+  let raw;
+  try { raw = localStorage.getItem(SAVE_KEY); }
+  catch (error) {
+    storageAvailable = false;
+    storageWarning = 'This browser is blocking local storage. Settings and positions cannot be saved.';
+    showSaveStatus('Saving unavailable', true); return;
+  }
+  if (raw === null) { saveSession(); return; }
+  try {
+    if (raw.length > 500000) throw new Error('Saved game is too large.');
+    const state = JSON.parse(raw);
+    if (!state || state.version !== SAVE_VERSION || !Array.isArray(state.moves) || state.moves.length > 20000) {
+      throw new Error('Unsupported saved-game format.');
+    }
+    // Build a separate game first: bad/corrupt data must not partially change this board.
+    const restored = new Chess();
+    for (const uci of state.moves) {
+      if (typeof uci !== 'string' || !/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(uci)) throw new Error('Invalid saved move.');
+      const move = {from:uci.slice(0,2), to:uci.slice(2,4)};
+      if (uci.length === 5) move.promotion = uci[4];
+      if (!restored.move(move)) throw new Error('Illegal saved move.');
+    }
+    if (typeof state.fen !== 'string' || restored.fen() !== state.fen) throw new Error('Saved position does not match the moves.');
+    game = restored;
+    const settings = state.settings && typeof state.settings === 'object' ? state.settings : {};
+    for (const id of SELECT_SETTINGS) {
+      const value = String(settings[id]);
+      if ([...$(id).options].some(option => option.value === value)) $(id).value = value;
+    }
+    for (const id of CHECK_SETTINGS) if (typeof settings[id] === 'boolean') $(id).checked = settings[id];
+    if (typeof settings.flipped === 'boolean') flipped = settings.flipped;
+    if (typeof settings.focusBoard === 'boolean') focusBoard = settings.focusBoard;
+    lastSavedContent = JSON.stringify({settings:savedSettings(), moves:state.moves, fen:game.fen()});
+    showSaveStatus(state.moves.length ? 'Game restored' : 'Settings restored');
+  } catch (error) {
+    // Do not silently overwrite a damaged save at startup. A later deliberate
+    // move or settings change replaces it with the current valid state.
+    storageWarning = 'The stored game could not be restored. Starting safely from the standard position. A move or settings change will replace the old save.';
+    showSaveStatus('Saved game not restored', true);
+  }
+}
+function applyFocus() {
+  document.body.classList.toggle('focus-board', focusBoard);
+  $('focus').textContent = focusBoard ? 'Show panels' : 'Focus board';
+  $('focus').setAttribute('aria-pressed', String(focusBoard));
+  queueSize();
+}
+
 const PIECE_ARTWORK = Object.freeze({
   "p": "<g class=\"piece-body\"><path d=\"M26 31h12c0 10 3 15 8 19H18c5-4 8-9 8-19Z\"/><path d=\"M25 25h14l3 7H22Z\"/><circle cx=\"32\" cy=\"17\" r=\"8\"/><path d=\"M18 49h28l5 8H13Z\"/></g><path class=\"piece-detail\" d=\"M19 53h26\"/>",
   "r": "<g class=\"piece-body\"><path d=\"M20 27h24v20l6 5H14l6-5Z\"/><path d=\"M12 9h9v8h7V9h8v8h7V9h9v15l-6 6H18l-6-6Z\"/><path d=\"M15 50h34l5 7H10Z\"/></g><path class=\"piece-detail\" d=\"M19 25h26M22 45h20M17 53h30\"/>",
@@ -422,13 +585,43 @@ function createPiece(piece) {
   svg.innerHTML = PIECE_ARTWORK[piece.type]; // Static local SVG only; no untrusted markup.
   return svg;
 }
+/** Fit to BOTH dimensions; sidebar never takes space away from a larger board.
+ * Measure actual header and board chrome instead of guessing a fixed height.
+ * Width and height are CSS pixels. Integer squares keep all 64 cells identical.
+ */
 function sizeBoard() {
-  const compact = window.innerWidth <= 700;
-  const available = window.innerWidth - (compact ? 16 : 36) - 41;
-  const besidePanel = window.innerWidth > 900 ? Math.min(available - 330, window.innerWidth * .56) : available;
-  const height = Math.max(240, window.innerHeight - 285);
-  const square = Math.max(24, Math.floor(Math.min(650, besidePanel, height) / 8));
+  const layout = $('layout'), board = $('board'), group = board.parentElement;
+  const style = getComputedStyle(document.body), boardStyle = getComputedStyle(board);
+  const vv = window.visualViewport;
+  // Honour mobile browser chrome/keyboard without fighting intentional pinch zoom.
+  const viewportHeight = vv && Math.abs(vv.scale - 1) < 0.02 ? vv.height : window.innerHeight;
+  const top = layout.getBoundingClientRect().top + window.scrollY;
+  const outerHeight = node => {
+    const css = getComputedStyle(node);
+    return node.getBoundingClientRect().height + parseFloat(css.marginTop || 0) + parseFloat(css.marginBottom || 0);
+  };
+  const borderX = parseFloat(boardStyle.borderLeftWidth) + parseFloat(boardStyle.borderRightWidth);
+  const borderY = parseFloat(boardStyle.borderTopWidth) + parseFloat(boardStyle.borderBottomWidth);
+  const boardChrome = outerHeight($('top-seat')) + outerHeight($('bottom-seat')) + outerHeight($('lastmove'));
+  const gap = parseFloat(getComputedStyle(group).columnGap) || 0;
+  const widthChrome = $('evaluation-bar').getBoundingClientRect().width + gap + borderX;
+  const width = layout.clientWidth;
+  const heightBudget = viewportHeight - top - parseFloat(style.paddingBottom) - boardChrome - borderY - 2;
+  const contentSize = Math.min(Math.max(0,width - widthChrome), Math.max(128,heightBudget));
+  const square = Math.max(8, Math.floor(contentSize / 8));
+  const columnWidth = square * 8 + widthChrome;
+  const layoutGap = parseFloat(getComputedStyle(layout).columnGap) || 0;
+  const beside = !focusBoard && width - columnWidth - layoutGap >= 300;
   document.documentElement.style.setProperty('--sq', square + 'px');
+  document.documentElement.style.setProperty('--boardcolumn-width', columnWidth + 'px');
+  document.documentElement.style.setProperty('--play-height', (square * 8 + borderY + boardChrome) + 'px');
+  layout.classList.toggle('with-sidebar', beside);
+  const dimensions = square * 8;
+  $('board-size').textContent = 'Auto-fit board: ' + dimensions + ' x ' + dimensions + ' px (' + square + ' px squares).';
+}
+function queueSize() {
+  if (sizeFrame !== null) return;
+  sizeFrame = requestAnimationFrame(() => {sizeFrame = null; sizeBoard();});
 }
 function queueDraw() {
   if (drawFrame !== null) return;
@@ -516,7 +709,7 @@ function draw() {
   $('evalnum').textContent = evaluation.known ? evaluation.text : '\u2014';
   $('evaluation-bar').setAttribute('aria-label', 'White advantage at bottom, black at top. ' + evaluation.description);
   $('evaluation-bar').title = 'White-perspective evaluation, not a win probability. ' + evaluation.description;
-  renderSuggestions(); renderCommentary(); setStatus();
+  renderSuggestions(); renderCommentary(); setStatus(); queueSize();
 }
 function renderStrengthControls() {
   const rating = ratingLabel(), preset = presetFor(rating), allow = allowBlunders();
@@ -675,7 +868,7 @@ function performMove(candidate, actor) {
   const input = {from:legal.from, to:legal.to};
   if (legal.promotion) input.promotion = legal.promotion;
   try {game.move(input);} catch (error) {return false;}
-  selected = null; refreshPositionCache(); requestAnalysis(); return true;
+  selected = null; refreshPositionCache(); saveSession(); requestAnalysis(); return true;
 }
 function clickSquare(square) {
   if (game.isGameOver() || computerTurn()) return;
@@ -711,7 +904,7 @@ function startEngine() {
 $('new').onclick = () => {
   clearAutoplay(); game.reset(); gameSerial++; lastChoice = null;
   evaluation = {value:0, text:'0.00', description:'Starting position.', known:false};
-  refreshPositionCache(); requestAnalysis();
+  refreshPositionCache(); saveSession(); requestAnalysis();
 };
 $('undo').onclick = () => {
   if (!moveHistory.length || (isPlay() && !moveHistory.some(m => m.color === humanColour()))) return;
@@ -722,18 +915,47 @@ $('undo').onclick = () => {
     do {removed = game.undo();} while (removed && removed.color !== humanColour());
   } else game.undo();
   lastChoice = null; evaluation.known = false;
-  refreshPositionCache(); requestAnalysis();
+  refreshPositionCache(); saveSession(); requestAnalysis();
 };
-$('flip').onclick = () => {flipped = !flipped; requestAnalysis();};
-$('mode').onchange = () => {requestAnalysis(); sizeBoard();};
-$('hintsWhite').onchange = queueDraw; $('hintsBlack').onchange = queueDraw;
-$('talk').onchange = queueDraw; $('rating').onchange = requestAnalysis;
-$('allowBlunder').onchange = () => {if (isPlay()) requestAnalysis(); else queueDraw();};
-$('weighting').onchange = () => {if (allowBlunders() && result?.complete && computerTurn()) scheduleComputerMove(); queueDraw();};
-$('think').onchange = () => {if (isPlay()) requestAnalysis();};
+$('flip').onclick = () => {flipped = !flipped; saveSession(); requestAnalysis();};
+$('mode').onchange = () => {saveSession(); requestAnalysis(); queueSize();};
+$('hintsWhite').onchange = () => {saveSession(); queueDraw();};
+$('hintsBlack').onchange = () => {saveSession(); queueDraw();};
+$('talk').onchange = () => {saveSession(); queueDraw();};
+$('rating').onchange = () => {saveSession(); requestAnalysis();};
+$('allowBlunder').onchange = () => {saveSession(); if (isPlay()) requestAnalysis(); else queueDraw();};
+$('weighting').onchange = () => {saveSession(); if (allowBlunders() && result?.complete && computerTurn()) scheduleComputerMove(); queueDraw();};
+$('think').onchange = () => {saveSession(); if (isPlay()) requestAnalysis();};
 $('engine-retry').onclick = startEngine;
-window.addEventListener('resize', () => {sizeBoard(); queueDraw();});
-window.addEventListener('beforeunload', () => {clearAutoplay(); engine?.destroy();});
+$('focus').onclick = () => {focusBoard = !focusBoard; applyFocus(); saveSession();};
+const fullscreenButton = $('fullscreen');
+fullscreenButton.hidden = !document.fullscreenEnabled || typeof document.documentElement.requestFullscreen !== 'function';
+fullscreenButton.onclick = async () => {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await document.documentElement.requestFullscreen();
+  } catch (error) { fullscreenButton.title = 'Full screen was blocked by the browser. You can still resize the window or use Focus board.'; }
+  queueSize();
+};
+document.addEventListener('fullscreenchange', () => {
+  const active = Boolean(document.fullscreenElement);
+  fullscreenButton.textContent = active ? 'Exit full screen' : 'Full screen';
+  fullscreenButton.setAttribute('aria-pressed', String(active));
+  queueSize();
+});
+window.addEventListener('resize', queueSize);
+window.visualViewport?.addEventListener('resize', queueSize);
+// Header wrapping, restored controls and status changes also affect the board budget.
+if (typeof ResizeObserver !== 'undefined') {
+  const observer = new ResizeObserver(queueSize);
+  observer.observe($('app-header'));
+  observer.observe($('layout'));
+}
+document.fonts?.ready.then(queueSize);
+// Save on each deliberate change, plus lifecycle fallback for mobile/tab closing.
+document.addEventListener('visibilitychange', () => {if (document.visibilityState === 'hidden' && !storageWarning) saveSession();});
+window.addEventListener('pagehide', () => {if (!storageWarning) saveSession(); clearAutoplay(); engine?.destroy();});
+window.addEventListener('pageshow', event => {if (event.persisted) {queueSize(); startEngine();}});
 for (const [label, preset] of Object.entries(RATING_PRESETS)) {
   const row = document.createElement('tr');
   for (const text of [label, preset.depth, numberText(preset.nodes)]) {
@@ -741,7 +963,7 @@ for (const [label, preset] of Object.entries(RATING_PRESETS)) {
   }
   $('preset-rows').appendChild(row);
 }
-refreshPositionCache(); sizeBoard(); draw(); startEngine();
+restoreSession(); applyFocus(); refreshPositionCache(); draw(); sizeBoard(); startEngine();
 })();
 </script>
 </body>
