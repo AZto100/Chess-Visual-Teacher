@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chess Teacher - Practice &amp; Play</title>
+<title>Chess Teacher - Rating &amp; Blunder Controls</title>
 <style>
 :root{font-family:system-ui,Arial,sans-serif;color:#e9edf5;background:#111827;--sq:64px;--last-light:#d4d4d4;--last-dark:#737373}
 *{box-sizing:border-box}body{margin:0;padding:18px}.wrap{max-width:1250px;margin:auto}h1{margin:0;font-size:25px}.subtitle{margin:5px 0 12px}.controls{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0;align-items:center}
@@ -16,7 +16,7 @@ button,select{font:inherit;background:#27364c;color:white;border:1px solid #5664
 .piece{display:block;width:calc(var(--sq)*.92);height:calc(var(--sq)*.92);flex:none;z-index:1;pointer-events:none;user-select:none;filter:drop-shadow(0 1px 1px #0003)}.piece *{pointer-events:none}.piece.white{color:#fff;--piece-edge:#202020;--piece-detail:#202020}.piece.black{color:#080808;--piece-edge:#d5d9dd;--piece-detail:#e9edf1}.piece-body{fill:currentColor;stroke:var(--piece-edge);stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}.piece-detail{fill:none;stroke:var(--piece-detail);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}.piece-eye{fill:var(--piece-detail);stroke:none}
 .moves{position:absolute;inset:auto 1px 2px;display:flex;flex-direction:column;align-items:center;gap:1px;z-index:3;pointer-events:none}.move{font-size:clamp(8px,calc(var(--sq)*.15),12px);font-weight:900;color:#102018;background:#fffffff0;border-radius:3px;padding:0 2px;white-space:nowrap}.coord{position:absolute;top:2px;left:3px;color:#23352b;font-size:10px;font-weight:700;opacity:.85}.last-move.dark .coord{color:#fff}
 .eval{width:26px;border:2px solid #65748b;position:relative;background:#171717}.whitefill{position:absolute;bottom:0;width:100%;background:#f4f4f4;height:50%;transition:height .4s}.evalnum{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-90deg);background:#334155;border-radius:4px;padding:2px 5px;font-size:12px;white-space:nowrap;z-index:1}.eval-label{position:absolute;left:50%;transform:translateX(-50%);font-size:9px;font-weight:800;z-index:1;padding:1px 2px;border-radius:2px}.eval-label.black-label{top:3px;color:white;background:#171717}.eval-label.white-label{bottom:3px;color:#171717;background:white}
-.side{flex:1;min-width:280px;max-width:460px}.panel{background:#1d293b;padding:14px;border-radius:10px;margin-bottom:12px}.panel h2{margin:0 0 10px;font-size:17px}.hintrow{display:flex;align-items:center;gap:7px;padding:8px 0;border-bottom:1px solid #39475b;font-size:14px}.rank{display:inline-block;min-width:24px;font-weight:800}.green{color:#53e68c}.yellow{color:#ffe36a}.chance{margin-left:auto;font-size:12px;white-space:nowrap;background:#314258;border-radius:4px;padding:3px 5px;font-variant-numeric:tabular-nums}.score{color:#afbed0;font-size:12px}.muted{color:#afbed0;font-size:13px}.status{margin:8px 0;color:#cbd5e1;min-height:24px}.history{max-height:140px;overflow:auto;line-height:1.7;white-space:pre-wrap}.seat{padding:5px 0 5px 35px;font-size:13px;font-weight:700;color:#afbed0}.lastmove-text{margin:9px 0;font-size:13px;color:#cbd5e1}.legend{line-height:1.5;max-width:600px}.grey-swatch{display:inline-block;width:12px;height:12px;border:1px solid #a0a0a0;vertical-align:-1px;border-radius:2px}.grey-swatch.light{background:var(--last-light)}.grey-swatch.dark{background:var(--last-dark)}#commentary{line-height:1.5}.settings{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}.settings label{font-size:13px}details{font-size:13px;line-height:1.5}summary{cursor:pointer;color:#c9d6e8}details p{margin:9px 0}code{font-size:.94em}#engine-retry{padding:5px 9px;margin-left:8px}[hidden]{display:none!important}
+.side{flex:1;min-width:280px;max-width:460px}.panel{background:#1d293b;padding:14px;border-radius:10px;margin-bottom:12px}.panel h2{margin:0 0 10px;font-size:17px}.hintrow{display:flex;align-items:center;gap:7px;padding:8px 0;border-bottom:1px solid #39475b;font-size:14px}.rank{display:inline-block;min-width:24px;font-weight:800}.green{color:#53e68c}.yellow{color:#ffe36a}.chance{margin-left:auto;font-size:12px;white-space:nowrap;background:#314258;border-radius:4px;padding:3px 5px;font-variant-numeric:tabular-nums}.score{color:#afbed0;font-size:12px}.muted{color:#afbed0;font-size:13px}.status{margin:8px 0;color:#cbd5e1;min-height:24px}.history{max-height:140px;overflow:auto;line-height:1.7;white-space:pre-wrap}.seat{padding:5px 0 5px 35px;font-size:13px;font-weight:700;color:#afbed0}.lastmove-text{margin:9px 0;font-size:13px;color:#cbd5e1}.legend{line-height:1.5;max-width:600px}.grey-swatch{display:inline-block;width:12px;height:12px;border:1px solid #a0a0a0;vertical-align:-1px;border-radius:2px}.grey-swatch.light{background:var(--last-light)}.grey-swatch.dark{background:var(--last-dark)}#commentary{line-height:1.5}.settings{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}.settings label{font-size:13px}details{font-size:13px;line-height:1.5}summary{cursor:pointer;color:#c9d6e8}details p{margin:9px 0}code{font-size:.94em}.strength-note{margin:0 0 10px;max-width:1000px;line-height:1.5}.control-disabled{opacity:.55}.selection-summary{padding:9px 11px;background:#26394d;border-left:3px solid #53e68c;border-radius:4px;font-size:13px;line-height:1.5;margin:8px 0}.preset-table{width:100%;border-collapse:collapse;margin:10px 0;font-variant-numeric:tabular-nums}.preset-table th,.preset-table td{padding:5px 6px;text-align:right;border-bottom:1px solid #39475b}.preset-table th:first-child,.preset-table td:first-child{text-align:left}.strength-details{margin-bottom:10px}.hintrow{flex-wrap:wrap}.choice-note{font-size:12px;line-height:1.5;color:#afbed0;margin:6px 0 0}#engine-retry{padding:5px 9px;margin-left:8px}[hidden]{display:none!important}
 @media(max-width:700px){body{padding:8px}.side{max-width:none;min-width:0;width:100%}.layout{gap:12px}.controls{gap:8px;font-size:13px}h1{font-size:23px}.panel{padding:12px}}
 </style>
 </head>
@@ -30,8 +30,20 @@ button,select{font:inherit;background:#27364c;color:white;border:1px solid #5664
 <label><input type="checkbox" id="hintsWhite" checked> Show white hints</label>
 <label><input type="checkbox" id="hintsBlack" checked> Show black hints</label>
 <label><input type="checkbox" id="talk" checked> Commentary</label>
-<label>Depth <select id="depth"><option>10</option><option selected>14</option><option>18</option><option>22</option></select></label>
+<label title="Training difficulty presets, not calibrated FIDE ratings.">Approx. rating <select id="rating" aria-describedby="rating-caveat">
+<option value="600">600</option><option value="700">700</option><option value="800">800</option><option value="1000">1000</option><option value="1200">1200</option><option value="1400">1400</option><option value="1600" selected>1600</option><option value="1800">1800</option><option value="2000">2000</option><option value="2200">2200</option><option value="2400">2400</option>
+</select></label>
+<label id="blunder-control" title="Play computer only. Checked: your weighted top-four choice. Unchecked: Stockfish's final best move at this preset's search limits."><input type="checkbox" id="allowBlunder" checked disabled> Allow Blunder</label>
 </div>
+<p class="muted strength-note" id="rating-caveat"><strong>Training estimates, not measured FIDE ratings.</strong> Higher presets allow more search. Lower presets can still play much stronger than their label, especially with Allow Blunder off.</p>
+<details class="strength-details"><summary>Rating presets and search variety</summary>
+<p>These are hand-tuned search budgets, <strong>not a validated depth-to-FIDE conversion</strong>. The label 600 does not mean this engine has achieved a 600 FIDE rating. Actual strength depends on the position, engine build, thinking limit and move-selection policy. Proper rating calibration would need games against opponents with known ratings.</p>
+<p id="strength-summary"></p>
+<table class="preset-table" style="max-width:480px"><thead><tr><th>Training label</th><th>Depth ceiling</th><th>Node budget</th></tr></thead><tbody id="preset-rows"></tbody></table>
+<p>Stockfish's documented <code>UCI_Elo</code> starts at 1320 and is anchored to an engine rating list, not FIDE. Its built-in strength reduction deliberately chooses suboptimal moves. This board instead keeps that reduction <strong>off</strong>, so your Allow Blunder checkbox has sole control over intentional random move selection.</p>
+<p><strong>Same position, same best move?</strong> Often, yes. Fixed single-thread search is not shuffled automatically here. Allow Blunder adds variety by sampling the best four analysed moves, without changing the preset. With it off, the board always uses the engine's final best move; even equal-score ties are not deliberately randomised. Different human opening moves also lead to different games.</p>
+<p>The hash/search cache is cleared before each search so changing from a stronger to a weaker preset does not reuse deeper analysis. The optional time cap may stop a search before its full budget is reached. The completed depth is shown below the hints. These limits apply in Practice too, so low-level hints are not full-strength analysis.</p>
+</details>
 <div class="status"><span id="status" role="status" aria-live="polite">Loading chess rules...</span><button id="engine-retry" hidden>Retry engine</button></div>
 <div class="layout">
 <div class="boardcolumn">
@@ -50,16 +62,20 @@ button,select{font:inherit;background:#27364c;color:white;border:1px solid #5664
 <div class="panel" id="play-settings" hidden>
 <h2>Computer move selection</h2>
 <div class="settings">
-<label>Weighting <select id="weighting"><option value="safe" selected>Score-gap (recommended)</option><option value="original">Your formula (guarded)</option></select></label>
-<label>Think limit <select id="think"><option value="1000">1 second</option><option value="3000" selected>3 seconds</option><option value="6000">6 seconds</option><option value="0">Depth only</option></select></label>
+<label id="weighting-control">Weighting <select id="weighting"><option value="safe" selected>Score-gap (recommended)</option><option value="original">Your formula (guarded)</option></select></label>
+<label>Think limit <select id="think"><option value="1000">1 second</option><option value="3000" selected>3 seconds</option><option value="6000">6 seconds</option><option value="0">Preset budget only</option></select></label>
 </div>
 <p class="muted" id="computer-note">The computer plays the top colour. You play the bottom colour.</p>
-<details><summary>How the move probabilities work</summary>
+<p class="selection-summary" id="selection-summary"></p>
+<p class="choice-note" id="choice-note" hidden></p>
+<details><summary>Allow Blunder and move probabilities</summary>
+<p><strong>Unchecked:</strong> use Stockfish's final <code>bestmove</code>, with no intentional random choice. This is the best move found within the selected search budget, not a promise that it is objectively perfect. The weighting selector is disabled.</p>
+<p><strong>Checked (default):</strong> preserve the existing weighted draw among the four best candidates. Allowing a lower-ranked move does not force a blunder, and the top four may all be good moves.</p>
 <p>Both choices retain your rank bonuses: <strong>20%, 10%, 5%, 0%</strong>, then normalise the preliminary weights to total 100%. Percentages mean <em>chance of selecting a move</em>, not chance of winning.</p>
 <p><strong>Score-gap:</strong> using scores in pawn units from the moving side's viewpoint, calculate <code>w = exp((score - bestScore) / 1.0)</code>. The preliminary weight is <code>rankBonus + w / sum(w)</code>. This keeps the score order intact with positive, zero, or negative evaluations.</p>
 <p><strong>Your formula:</strong> use <code>rankBonus + score / totalScore</code>. When the signed total is zero or negative, use the sum of absolute scores as the denominator; if all scores are zero, start with equal shares. If any preliminary weight is negative, add the same amount to all so the smallest becomes 0.05, then normalise. That 5% floor is <em>before</em> normalising, not a minimum final chance.</p>
 <p><strong>Mate safeguard:</strong> take an available immediate checkmate; otherwise favour forced-mate lines over non-mating lines. Avoid an engine-reported forced loss when another candidate avoids it. Within an all-mate pool, use mate distance rather than pretending mate is a centipawn score. Fewer than four legal moves are handled automatically.</p>
-<p>The computer waits for a completed search (depth target or time limit) before choosing. A brief pause makes the reply visible. Changing mode, flipping, undoing or starting a new game cancels a pending choice.</p>
+<p>The computer waits for its search to end (depth, node budget or time limit) before choosing. A brief pause makes the reply visible. Changing mode, flipping, undoing or starting a new game cancels a pending choice.</p>
 </details>
 </div>
 <div class="panel"><h2 id="suggestions-title">Best next moves</h2><div id="suggestions">Waiting for engine...</div><p class="muted" id="analysis-note"></p><p class="muted legend">Green = #1. Yellow = #2-4. Labels show rank and origin:destination. Dotted lines connect square centres. Hints apply only to the side whose turn it is.</p></div>
@@ -88,6 +104,28 @@ const names = {p:'pawn',n:'knight',b:'bishop',r:'rook',q:'queen',k:'king'};
 const BONUS = [0.20, 0.10, 0.05, 0];
 const AUTO_DELAY_MS = 650;
 const TEMPERATURE = 1.0; // Pawn units. Smaller = greater preference for stronger scores.
+// Official option semantics: https://official-stockfish.github.io/docs/stockfish-wiki/UCI-Protocol-and-Stockfish-Commands.html
+// Strength reduction: https://official-stockfish.github.io/docs/stockfish-wiki/Stockfish-FAQ.html
+// The following budgets are application design choices, NOT derived calibration data.
+// These are UNCALIBRATED training labels, not measured FIDE Elo. Never silently
+// pass them to UCI_Elo (which cannot represent 600 and would weaken best-only mode).
+const RATING_PRESETS = Object.freeze({
+  600:  Object.freeze({depth:1,  nodes:1500}),
+  700:  Object.freeze({depth:2,  nodes:3000}),
+  800:  Object.freeze({depth:3,  nodes:5000}),
+  1000: Object.freeze({depth:4,  nodes:10000}),
+  1200: Object.freeze({depth:6,  nodes:24000}),
+  1400: Object.freeze({depth:8,  nodes:60000}),
+  1600: Object.freeze({depth:10, nodes:150000}),
+  1800: Object.freeze({depth:12, nodes:350000}),
+  2000: Object.freeze({depth:14, nodes:800000}),
+  2200: Object.freeze({depth:16, nodes:1800000}),
+  2400: Object.freeze({depth:18, nodes:4000000})
+});
+const presetFor = rating => RATING_PRESETS[rating] || RATING_PRESETS[1600];
+const ratingLabel = () => Number($('rating').value);
+const allowBlunders = () => $('allowBlunder').checked;
+const numberText = number => Number(number).toLocaleString('en-US');
 let selected = null, flipped = false, recommendations = [], lastMove = null;
 let revision = 0, gameSerial = 1, busy = false, result = null, lastChoice = null;
 let autoTimer = null, drawFrame = null, engineError = '', engine = null;
@@ -162,6 +200,18 @@ function moveProbabilities(candidates, method = 'safe') {
   for (const move of moves) move.probability = byMove.get(move.uci || uciOf(move)) || 0;
   return {moves, note};
 }
+/** Exact best-only selection has no sampling or mate-filter override. */
+function selectionProbabilities(candidates, allow, method = 'safe', bestUci = null) {
+  if (allow) return moveProbabilities(candidates, method);
+  const moves = candidates.slice(0, 4).map(x => ({...x, probability:0}));
+  const best = moves.find(x => x.uci === bestUci) || moves.find(x => x.rank === 1) || moves[0];
+  if (best) best.probability = 1;
+  return {moves, note:'Best-only: no deliberate randomisation.'};
+}
+function currentDistribution() {
+  return selectionProbabilities(recommendations, allowBlunders(), $('weighting').value, result?.bestUci);
+}
+
 /** Round displayed percentages to one decimal place while preserving a total of 100.0. */
 function percentageLabels(moves) {
   const parts = moves.map((x, i) => {
@@ -234,6 +284,8 @@ class EngineCoordinator {
       this.send('ucinewgame');
       this.lastSerial = context.serial;
     }
+    // Do not inherit a deeper search after a rating change or a practice move.
+    this.send('setoption name Clear Hash');
     this.send('isready');
     clearTimeout(this.watchdog);
     this.watchdog = setTimeout(() => this.fail('Stockfish did not acknowledge readiness. Retry the engine.'), 15000);
@@ -249,6 +301,7 @@ class EngineCoordinator {
       this.send('setoption name MultiPV value 4');
       this.send('setoption name Ponder value false');
       this.send('setoption name Skill Level value 20');
+      this.send('setoption name UCI_LimitStrength value false');
       this.phase = 'idle'; this.onState(); this.pump(); return;
     }
     if (line === 'readyok' && this.phase === 'syncing') {
@@ -258,7 +311,8 @@ class EngineCoordinator {
       }
       this.phase = 'searching';
       this.send(this.active.position);
-      this.send('go depth ' + this.active.depth + (this.active.timeLimit > 0 ? ' movetime ' + this.active.timeLimit : ''));
+      this.send('go depth ' + this.active.depth + ' nodes ' + this.active.nodes +
+        (this.active.timeLimit > 0 ? ' movetime ' + this.active.timeLimit : ''));
       if (this.active.timeLimit > 0) {
         this.watchdog = setTimeout(() => this.fail('Stockfish exceeded its time limit and stopped responding. Retry the engine.'), this.active.timeLimit + 15000);
       }
@@ -285,10 +339,35 @@ class EngineCoordinator {
           const uci = line.split(/\s+/)[1], move = search.legal.get(uci);
           if (move) snapshot = {moves:[{...move, uci, rank:1, kind:'unknown', score:null, scoreText:'score unavailable', depth:0}], depth:0, partial:true};
         }
-        this.onComplete(search, snapshot || {moves:[], depth:0, partial:true});
+        const bestUci = line.split(/\s+/)[1];
+        // In strict mode follow the actual final UCI bestmove, not a stale
+        // complete MultiPV set if the timer interrupted the next iteration.
+        if (search.strict && search.legal.has(bestUci)) {
+          snapshot = this.strictSnapshot(search, bestUci);
+        }
+        this.onComplete(search, {...(snapshot || {moves:[], depth:0, partial:true}), bestUci});
       }
       this.onState(); this.pump();
     }
+  }
+  strictSnapshot(search, bestUci) {
+    const depths = [...search.groups.keys()].sort((a, b) => b - a);
+    // Use the latest coherent (same-depth) set in which rank 1 is bestmove.
+    // At a time cutoff this may be partial: do not invent the missing scores.
+    for (const depth of depths) {
+      const group = search.groups.get(depth);
+      if (group.get(1)?.uci !== bestUci) continue;
+      const rows = this.rows(group);
+      if (rows[0]?.uci === bestUci) return {
+        moves:rows, depth,
+        partial:rows.length !== search.expected || rows.some((x, i) => x.rank !== i + 1)
+      };
+    }
+    // If only a bestmove was reported (no usable ranked info), it is still
+    // legal and authoritative; report its score as unavailable.
+    const move = search.legal.get(bestUci);
+    return {moves:[{...move, uci:bestUci, rank:1, kind:'unknown', score:null,
+      scoreText:'score unavailable', depth:0}], depth:0, partial:true};
   }
   rows(group) {
     const seen = new Set();
@@ -422,6 +501,7 @@ function draw() {
   $('bottom-seat').textContent = colourName(bottom) + ' - bottom' + (isPlay() ? ' - You' : '');
   $('play-settings').hidden = !isPlay(); $('play-legend').hidden = !isPlay();
   $('computer-note').textContent = 'Computer: ' + colourName(top) + ' (top). You: ' + colourName(bottom) + ' (bottom). Flip board swaps sides.';
+  renderStrengthControls();
   $('undo').disabled = isPlay() ? !moveHistory.some(m => m.color === humanColour()) : !moveHistory.length;
   $('undo').title = isPlay() ? 'Undo your most recent move and the computer reply, if already played.' : 'Undo one move.';
   $('lastmove').textContent = lastMove ? 'Last move: ' + colourName(lastMove.color) + '  ' + lastMove.from.toUpperCase() + ' \u2192 ' + lastMove.to.toUpperCase() + (lastMove.promotion ? '=' + lastMove.promotion.toUpperCase() : '') + '  (' + lastMove.san + ')' : 'No moves yet.';
@@ -437,6 +517,23 @@ function draw() {
   $('evaluation-bar').title = 'White-perspective evaluation, not a win probability. ' + evaluation.description;
   renderSuggestions(); renderCommentary(); setStatus();
 }
+function renderStrengthControls() {
+  const rating = ratingLabel(), preset = presetFor(rating), allow = allowBlunders();
+  $('allowBlunder').disabled = !isPlay();
+  $('blunder-control').classList.toggle('control-disabled', !isPlay());
+  $('weighting').disabled = !allow;
+  $('weighting-control').classList.toggle('control-disabled', !allow);
+  $('weighting').title = allow ? 'Weighted choice among the analysed top four.' : 'Enable Allow Blunder to use weighted selection.';
+  $('strength-summary').textContent = 'Current training label: ' + rating + '. Search ceiling: depth ' + preset.depth +
+    ', approximately ' + numberText(preset.nodes) + ' nodes, with four candidate lines. These numbers are search budgets, not FIDE measurements.';
+  $('selection-summary').textContent = 'Training level ' + rating + ' | ' + (allow
+    ? 'Allow Blunder ON: weighted random choice among the analysed top four. Your selected weighting and mate safeguards are preserved.'
+    : 'Allow Blunder OFF: play Stockfish\'s final best move at this level. No intentional random choice; limited analysis can still miss a tactic.');
+  const showChoice = isPlay() && lastChoice && lastMove && uciOf(lastMove) === lastChoice.uci && hintsFor(lastMove.color);
+  $('choice-note').hidden = !showChoice;
+  if (showChoice) $('choice-note').textContent = 'Computer just played ' + lastMove.san + ' at training level ' + lastChoice.rating + ': ' +
+    (lastChoice.allowBlunder ? 'candidate #' + lastChoice.rank + ' (' + (lastChoice.probability * 100).toFixed(1) + '% selection chance).' : 'final best move; no random selection.');
+}
 function renderSuggestions() {
   const el = $('suggestions'), note = $('analysis-note');
   $('suggestions-title').textContent = 'Best next moves - ' + colourName(game.turn());
@@ -444,7 +541,7 @@ function renderSuggestions() {
   if (game.isGameOver()) {el.textContent = 'The game has finished.'; return;}
   if (!hintsVisible()) {el.textContent = colourName(game.turn()) + ' hints hidden.'; return;}
   if (!recommendations.length) {el.textContent = engineError ? 'Analysis unavailable.' : 'Analysing position...'; return;}
-  const weighted = moveProbabilities(recommendations, $('weighting').value);
+  const weighted = currentDistribution();
   const percentages = percentageLabels(weighted.moves);
   recommendations.forEach((x, i) => {
     const row = document.createElement('div'); row.className = 'hintrow';
@@ -459,7 +556,10 @@ function renderSuggestions() {
     el.appendChild(row);
   });
   const depth = result?.depth || recommendations[0]?.depth || 0;
-  note.textContent = (depth ? 'Depth ' + depth + (result?.partial ? ' (partial set)' : ' (complete set)') + '. ' : '') + 'Scores favour the side to move. ' + (busy ? 'Still analysing.' : 'Search complete.');
+  const preset = presetFor(ratingLabel());
+  note.textContent = 'Training level ' + ratingLabel() + '. ' + (depth ? 'Depth ' + depth + ' / ' + preset.depth +
+    (result?.partial ? ' (partial set)' : ' (complete set)') + '. ' : '') + 'Scores favour the side to move. ' + (busy ? 'Still analysing.' : 'Search complete.');
+  if (!busy && depth < preset.depth) note.textContent += ' Stopped before the depth ceiling (node/time limit or early engine completion).';
   if (computerTurn()) note.textContent += ' Percentages = ' + (busy ? 'provisional ' : '') + 'selection chances. ' + weighted.note;
 }
 function explain(move) {
@@ -529,13 +629,16 @@ function scheduleComputerMove() {
   autoTimer = setTimeout(() => {
     autoTimer = null;
     if (token !== revision || fen !== game.fen() || !computerTurn() || side !== computerColour()) return;
-    const distribution = moveProbabilities(recommendations, $('weighting').value);
-    const chosen = sampleMove(distribution.moves);
+    const distribution = currentDistribution();
+    // No PRNG call at all in best-only mode. Checkbox changes trigger a fresh
+    // request/revision, so an older weighted reply cannot play afterwards.
+    const chosen = allowBlunders() ? sampleMove(distribution.moves) : distribution.moves.find(x => x.probability === 1);
     if (!chosen || !legalMoves.some(m => uciOf(m) === chosen.uci)) {
       engineError = 'The selected computer move was not legal for the current position. Retry the engine.';
       queueDraw(); return;
     }
-    lastChoice = {uci:chosen.uci, rank:chosen.rank, probability:chosen.probability, distribution:distribution.moves};
+    lastChoice = {uci:chosen.uci, rank:chosen.rank, probability:chosen.probability,
+      distribution:distribution.moves, rating:ratingLabel(), allowBlunder:allowBlunders()};
     performMove(chosen, 'computer');
   }, AUTO_DELAY_MS);
   queueDraw();
@@ -557,7 +660,9 @@ function requestAnalysis() {
     revision, fen:game.fen(), turn:game.turn(), serial:gameSerial,
     position:'position startpos' + (moves.length ? ' moves ' + moves.join(' ') : ''),
     legal:new Map(legalMoves.map(m => [uciOf(m), m])), expected:Math.min(4, legalMoves.length),
-    depth:Number($('depth').value), timeLimit:isPlay() ? Number($('think').value) : 0
+    rating:ratingLabel(), ...presetFor(ratingLabel()),
+    strict:computerTurn() && !allowBlunders(),
+    timeLimit:isPlay() ? Number($('think').value) : 0
   };
   engine.request(context); queueDraw();
 }
@@ -621,12 +726,20 @@ $('undo').onclick = () => {
 $('flip').onclick = () => {flipped = !flipped; requestAnalysis();};
 $('mode').onchange = () => {requestAnalysis(); sizeBoard();};
 $('hintsWhite').onchange = queueDraw; $('hintsBlack').onchange = queueDraw;
-$('talk').onchange = queueDraw; $('depth').onchange = requestAnalysis;
-$('weighting').onchange = () => {if (result?.complete && computerTurn()) scheduleComputerMove(); queueDraw();};
+$('talk').onchange = queueDraw; $('rating').onchange = requestAnalysis;
+$('allowBlunder').onchange = () => {if (isPlay()) requestAnalysis(); else queueDraw();};
+$('weighting').onchange = () => {if (allowBlunders() && result?.complete && computerTurn()) scheduleComputerMove(); queueDraw();};
 $('think').onchange = () => {if (isPlay()) requestAnalysis();};
 $('engine-retry').onclick = startEngine;
 window.addEventListener('resize', () => {sizeBoard(); queueDraw();});
 window.addEventListener('beforeunload', () => {clearAutoplay(); engine?.destroy();});
+for (const [label, preset] of Object.entries(RATING_PRESETS)) {
+  const row = document.createElement('tr');
+  for (const text of [label, preset.depth, numberText(preset.nodes)]) {
+    const cell = document.createElement('td'); cell.textContent = text; row.appendChild(cell);
+  }
+  $('preset-rows').appendChild(row);
+}
 refreshPositionCache(); sizeBoard(); draw(); startEngine();
 })();
 </script>
